@@ -20,3 +20,5 @@ cdiiddwpgswtgt
 
 si on decode le code (-11) on obtient:
 nottoohardhere
+
+$ su flag00

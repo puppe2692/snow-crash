@@ -6,6 +6,8 @@ On le telecharge:
 scp -P 4242 level02@192.168.56.101:/home/user/level02/level02.pcap .
 on l'analyse via Wireshark
 
+to do ligne 43
+
 On trouve:
 ft_wandr...NDRel.L0L
 
@@ -33,4 +35,4 @@ char peer0_32[] = { /* Packet 83 */ 0x4c }; /* L */
 char peer0_33[] = { /* Packet 85 */ 0x0d }; /* Carriage Return */
 
 Ce qui nous donne le mot de passe:
-ft_waNDReL0L.
+ft_waNDReL0L

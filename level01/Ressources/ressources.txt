@@ -1,5 +1,5 @@
 Les sous-répertoires et fichiers dans /etc définissent souvent des paramètres globaux pour l'ensemble du système
-/etc/passwd : Informations sur les utilisateurs du système.
+cat /etc/passwd : Informations sur les utilisateurs du système.
 
 En fouillant dans /etc et particulierement sur /etc/passwd on tombe sur la ligne:
 flag01:42hDRfypTqqnw:3001:3001::/home/flag/flag01:/bin/bash

@@ -29,7 +29,5 @@ nous allons donc creer un faux echo qui va executer getflag et creant un lien sy
 $ ln -s /bin/getflag /tmp/echo
 
 ensuite on change la variable d'envirionement PATH pour que la fonction system aille chercher echo dans tmp et non dans bin:
-$ export PATH=/tmp
-
-puis on reexecute ./level03:
+$ PATH=/tmp ./level03:
 Check flag.Here is your token :
