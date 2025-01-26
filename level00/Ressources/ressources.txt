@@ -1,12 +1,14 @@
-D'apres la video d'introduction: https://elearning.intra.42.fr/notions/snow-crash/subnotions/snow-crash/videos/snow-crash
-on sait que l'on droit trouver le premier fichier que flag00 peut excecuter.
-donc:
-$ find / -user flag00  2>/dev/null
+D'apres la vidéo d'introduction: https://elearning.intra.42.fr/notions/snow-crash/subnotions/snow-crash/videos/snow-crash,
+on sait que l'on droit trouver le premier fichier que flag00 peut excecuter :
 
-2>/dev/null permet de ne pas afficher les erreurs
+$ find / -user flag00  2> /dev/null
 
-ca nous donne ca:
-$ find / -user flag00 2> /dev/null
+"2> /dev/null" redirige la sortie erreur vers un fichier spécial qui vient "manger" son output donc 
+on se tape pas toutes les erreurs associées aux fichiers que `find` n'a pas pu lire parce qu'on a 
+pas les droits.
+
+Ça nous donne ces deux fichiers :
+
 /usr/sbin/john
 /rofs/usr/sbin/john
 
@@ -14,11 +16,28 @@ $ ls -l /usr/sbin/john; ls -l /rofs/usr/sbin/john
 ----r--r-- 1 flag00 flag00 15 Mar  5  2016 /usr/sbin/john
 ----r--r-- 1 flag00 flag00 15 Mar  5  2016 /rofs/usr/sbin/john
 
-donc:
+Les deux contiennent la même chose
 $ cat /usr/sbin/john
 cdiiddwpgswtgt
 
-si on decode le code (-11) on obtient:
+Ce mot de passe ne fonctionne pas directement pour se log en tant que user flag00. 
+Vu que ça ne veut rien mais que ça n'a pas l'air très random contrairement à ce qu'un
+générateur de mot de passe pourrait créer on peut se dire que c'est que c'est crypté
+avec un cryptage basique.
+
+Comme conseillé dans la vidéo, on se rend sur dcode.fr et on lance une analyse sur cette string à
+https://www.dcode.fr/identification-chiffrement
+
+L'analyseur suggère différentes méthodes. Parmi celles-ci, trois d'entre elles donnent le même résultat.
+
+Trois d'entres elles donnent le même résultat:
+- Disque chiffrant
+- Rot
+- Code César
+Qui sont essentiellement la même technique, c'est-à-dire décaler une lettre de x positions.
+Dans notre cas il s'agit de +11, 'c' + 11 = 'n'
+
+Le mot de passe de l'user flag00 est donc:
 nottoohardhere
 
 $ su flag00
