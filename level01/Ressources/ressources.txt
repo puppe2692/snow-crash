@@ -1,11 +1,27 @@
-Les sous-répertoires et fichiers dans /etc définissent souvent des paramètres globaux pour l'ensemble du système
-cat /etc/passwd : Informations sur les utilisateurs du système.
+Le fichier /etc/passwd a été une cible traditionnelle des hackers.
+C'est le fichier sur linux qui contient des informations sur les comptes utilisateurs selon ce format.
 
-En fouillant dans /etc et particulierement sur /etc/passwd on tombe sur la ligne:
+username:password_hash:UID:GID:Full Name:/path/to/user/home:/bin/user_default_shell
+
+Malgré son nom, il ne contient généralement plus les hash des mots de passe en clair sur les systèmes modernes.
+et un 'x' est mis à la place
+
+Dans ce fichier on tombe sur la ligne:
+
 flag01:42hDRfypTqqnw:3001:3001::/home/flag/flag01:/bin/bash
 
-on installe John The Ripper pour decrypter le mot de passe, ce qui nous donne:
-echo "42hDRfypTqqnw" > pass
-john pass --show
+On voit que contrairement à ce qui se pratique, on peut voir le hash du mot de pass de l'user flag01.
+Dans la vidéo d'intro, on nous conseille d'installer `john`, un outil pour retrouver les mots de passes
+à partir de leur hash
+
+
+john --show <(getent passwd flag01 | cut --delimiter=: --fields=2)
+
+/usr/sbin/john: line 1: cdiiddwpgswtgt: command not found
+
+`john` a été remplacé fichier texte qui contient le mdp crypté du level00... :(
+Tant pis on va faire un bon vieux copier-coller vers la machine hôte
+
+john --show <(echo 42hDRfypTqqnw)
 
 ?:abcdefg
