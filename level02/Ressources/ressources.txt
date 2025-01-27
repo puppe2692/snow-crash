@@ -1,17 +1,30 @@
+Si on regarde dans le home, on trouve un fichier pcap
+
 pcap signifie Packet CAPture (capture de paquets).
 Un fichier pcap est créé par des outils qui capturent des paquets réseau (tcp, udp, etc.) et surveillent le réseau.
 
-une fois log dans le vel, on trouve un fichier pcap.
-On le telecharge:
-scp -P 4242 level02@192.168.56.101:/home/user/level02/level02.pcap .
-on l'analyse via Wireshark
+On le telecharge grâce au programme `scp` qui permet de copier des fichiers via le protocole ssh et que le sujet recommande d'utiliser
+et puis on lance l'analyse du fichier dans wireshark
 
-to do ligne 43
+scp -P 4242 level02@:${vm_ip_adress}:~/level02.pcap /tmp
+
+chmod +r level02.pcap #🤷
+wireshark /tmp/level02.pcap
+
+
+Le nombre de paquets n'étant pas très grand, il est assez facile de scanner leur contenu visuellement afin de répérer
+des informations
+
+À la fin du paquet 43, on a "Password:"
+
+Click droit sur le paquet -> Follow --> TCP Stream
 
 On trouve:
 ft_wandr...NDRel.L0L
 
-En passant d'un affichage ascii a un affichage C arrays, on obitent 
+Les points représentent de l'information non printable. 
+
+En passant d'un affichage ascii a un affichage "C arrays, on trouve juste après notre paquet 43
 char peer0_13[] = { /* Packet 45 */ 0x66 }; /* f */
 char peer0_14[] = { /* Packet 47 */ 0x74 }; /* t */
 char peer0_15[] = { /* Packet 49 */ 0x5f }; /* _ */
@@ -34,5 +47,5 @@ char peer0_31[] = { /* Packet 81 */ 0x30 }; /* 0 */
 char peer0_32[] = { /* Packet 83 */ 0x4c }; /* L */
 char peer0_33[] = { /* Packet 85 */ 0x0d }; /* Carriage Return */
 
-Ce qui nous donne le mot de passe:
+Si on prend en compte les instructions DEL envoyées, on a le mot de passe suivant:
 ft_waNDReL0L
