@@ -34,6 +34,7 @@ $ (gdb) x/s 0x80485e0
 0x80485e0:	 "/usr/bin/env echo Exploit me"
 
 On voit que la fonction system est appelée avec le paramètre "/usr/bin/env echo Exploit me"
+N'importe qui peut éxécuter getflag.
 Nous allons donc creer un faux echo qui va executer getflag et creant un lien symbolique entre getflag et notre faux echo:
 
 $ ln -s /bin/getflag /tmp/echo
