@@ -1,92 +1,88 @@
-$ ls -la
-total 24
-dr-x------ 1 level09 level09  140 Mar  5  2016 .
-d--x--x--x 1 root    users    340 Aug 30  2015 ..
+$ ls -lA
+⮡ total 24
 -r-x------ 1 level09 level09  220 Apr  3  2012 .bash_logout
 -r-x------ 1 level09 level09 3518 Aug 30  2015 .bashrc
 -rwsr-sr-x 1 flag09  level09 7640 Mar  5  2016 level09
 -r-x------ 1 level09 level09  675 Apr  3  2012 .profile
 ----r--r-- 1 flag09  level09   26 Mar  5  2016 token
 
-on trouve un binaire et un fichier token comme precedemment 
+Encore un binaire et un token...
 
-$ ./level09 
-You need to provied only one arg.
+$ ./level09
+⮡ You need to provide only one arg.
 $ ./level09 bonjour
-bppmszx
+⮡ bppmszx
 $ ./level09 nicolas
-njerpfy
+⮡ njerpfy
 $ ./level09 armand
-asodri
-$ ./level09 armand
-asodri
+⮡ asodri
 
-Le programme semble hasher le parametre:
-$ cat token
-f4kmm6p|=�p�n��DB�Du{��
+La première de l'input est préservée... ?
 
-etudions le programme:
+## Test avec des nombres:
+
 $ ./level09 1
-1
+⮡ 1
 $ ./level09 11
-12
+⮡ 12
 $ ./level09 111
-123
+⮡ 123
 $ ./level09 1111
-1234
+⮡ 1234
 $ ./level09 11111
-12345
+⮡ 12345
 $ ./level09 2
-2
+⮡ 2
 $ ./level09 22
-23
+⮡ 23
 $ ./level09 222
-234
+⮡ 234
 $ ./level09 23
-24
+⮡ 24
 $ ./level09 234
-246
+⮡ 246
 $ ./level09 2345
-2468
+⮡ 2468
+
+## Test avec des lettres:
+
 $ ./level09 a
-a
+⮡ a
 $ ./level09 aa
-ab
+⮡ ab
 $ ./level09 aaa
-abc
+⮡ abc
 $ ./level09 b
-b
+⮡ b
 $ ./level09 bc
-bd
+⮡ bd
 $ ./level09 bcd
-bdf
+⮡ bdf
 $ ./level09 bcde
-bdfh
+⮡ bdfh
 $ ./level09 bcdef
-bdfhj
+⮡ bdfhj
 
-le programme semble décaler chaque caractere du nombre de caractere avant lui.
+Motif: chaque caractère est rot vers l'avant selon sa position
 
-On va telecharger le token et faire des tests:
+$ scp -P 4242 level09@192.168.56.101:/home/user/level09/token .
 
-scp -P 4242 level09@192.168.56.101:/home/user/level09/token .
-
-On ecrit un script en python pour executer l hypothese:
+Script Python de décodage:
 
 #! /usr/bin/python3
-
 import sys
+result = ""
+for i, c in enumerate(sys.argv[1]):
+    result += chr(ord(c) + i)
 
-for i, c in enumerate(sys.argv[1].encode("utf-8", errors="surrogateescape")):
-	print(chr(c - i), end='')
-print()
+print(result)
 
-./scriptlevel09.py $(cat token)
-f3iji1ju5yuevaus41q1afiuq
+$ ./scriptlevel09.py $(cat token)
+⮡ f3iji1ju5yuevaus41q1afiuq
 
 $ su flag09
-Password: 
-Don't forget to launch getflag !
-$ getflag
-Check flag.Here is your token :
+⮡ Password: f3iji1ju5yuevaus41q1afiuq
+⮡ Don't forget to launch getflag !
 
+$ getflag
+⮡ Check flag.Here is your token : [TOKEN]
