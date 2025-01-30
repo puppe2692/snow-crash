@@ -24,7 +24,7 @@ Voici une version du script php commentée et simplifiée par nos soins:
     		// Le contenu du fichier spécifié par $param1 est lu dans la variable $str
     		$str = file_get_contents($param1);
 
-    		// Trouve [foo ...] dans $str et remplace par le résultat de la fonction bar(...)
+    		// Trouve [x ...] dans $str et remplace par le résultat de la fonction bar(...)
 				$str = preg_replace("/(\[x (.*)\])/e", "y(\"\\2\")", $str);
 
     		return $str;

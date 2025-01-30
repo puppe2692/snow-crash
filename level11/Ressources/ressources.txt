@@ -47,7 +47,7 @@ end
 Le script contient une fonction qui accepte un argument appele pass 
 La fonction hash appelle une fonction appelee io.popen, popen execute l'argument qui lui est passe dans le shell, puis le resultat est lu et retourne à l'appelant.
 Il y a aussi une boucle infinie qui accepte toutes les connexions de socket entrantes et demande le mot de passe :
-SI un mot de passe est fourni, elle appelle la fonction de hachage avec le mot de passe comme argument et compare les 2 hash, si le resultat est incorrect, 
+SI un mot de passe est fourni, elle appelle la fonction de hachage avec le mot de passe comme argument et compare les 2 hash, si le resultat est incorrect, erf nope s'affiche
 Gz you dumb* s'affiche si le resultat est correct et la connexion se ferme
 
 

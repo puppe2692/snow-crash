@@ -41,8 +41,8 @@ n(t(param("x"), param("y")));
 on trouve un script perl:
 
 La fonction t convertit la valeur du premier argument en majuscules et supprime tout ce qui suit un espace
-La fonction n n'accepte qu'un seul argument qui est compare. Si le premier argument est 1, elle imprime ... sinon elle imprime . Nous appelons
-la fonction n avec le resultat de la fonction f comme parametre.
+La fonction n n'accepte qu'un seul argument qui est compare. Si le premier argument est 1, elle imprime .. sinon elle imprime . Nous appelons
+la fonction n avec le resultat de la fonction t comme parametre.
 
 Le probleme ici est que le script transforme tout ce que nous passons en majuscules, 
 donc si nous passions la commande suivante $(getflag), 
