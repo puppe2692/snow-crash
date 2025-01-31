@@ -54,6 +54,7 @@ creons un fichier dans /tmp:
 ~$ cd /tmp
 /tmp$ vim SAVE_FLAG
 /tmp$ cat SAVE_FLAG
+
 #!/bin/sh
 
 getflag> /tmp/flag12
